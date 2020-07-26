@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yzh.course.mapper.CourseMapper">
+    <resultMap id="courseResult" type="com.yzh.course.entity.Course" >
+        <id column="id" property="id" jdbcType="VARCHAR" />
+        <result column="tid" property="tid" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="course_describe" property="courseDescribe" jdbcType="VARCHAR" />
+        <result column="teacherName" property="teacherName" jdbcType="VARCHAR" />
+        <collection property="focusNum" ofType="INTEGER"  column="id"  select="queryFocusNum"/>
+    </resultMap>
+    <insert id="addPerson" parameterType="com.yzh.course.entity.Person">
+        insert into person (name,role,password) values (#{name},#{role},#{password})
+    </insert>
+    <insert id="addCourse" parameterType="com.yzh.course.entity.Course">
+        insert into course (name,tid,course_describe) values (#{name},#{tid},#{courseDescribe})
+    </insert>
+    <update id="deletePerson" parameterType="string">
+        update person set is_delete=1 where id =#{sid};
+    </update>
+    <update id="deleteCourse" parameterType="string">
+        update course set is_delete=1 where id =#{cid};
+    </update>
+    <insert id="focusCourse" parameterType="string">
+        insert into attention (sid,cid) values (#{sid},#{cid})
+    </insert>
+    <delete id="disFocusCourse" parameterType="string">
+        delete from attention where sid=#{sid} and cid=#{cid}
+    </delete>
+    <select id="queryCourse" parameterType="string" resultMap="courseResult">
+        select c.id,
+        c.tid,
+        c.name,
+        c.course_describe,
+        p.name as teacherName
+        from course c join person p on c.tid=p.id
+        <where>
+            c.is_delete is null
+            <if test="role ==1">
+                and c.tid =#{sid}
+            </if>
+        </where>
+    </select>
+    <select id="queryFocusNum" parameterType="string" resultType="int">
+          select count(*) from attention a where a.cid=#{id}
+    </select>
+    <select id="login" parameterType="string" resultType="com.yzh.course.entity.Person">
+          select a.id,a.name,a.role from person a where a.name=#{name} and a.password=#{password} and a.is_delete is null
+    </select>
+    <select id="queryFocus" parameterType="string" resultType="int">
+          select a.cid from attention a where a.sid=#{sid} order by a.cid
+    </select>
+    <select id="queryPerson" resultType="com.yzh.course.entity.Person">
+          select a.id,a.name,a.role from person a where a.is_delete is null
+    </select>
+</mapper>

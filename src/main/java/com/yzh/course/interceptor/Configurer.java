@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import java.nio.charset.Charset;
 import java.util.List;
 
-//@Component
+@Component
 public class Configurer extends WebMvcConfigurationSupport {
     @Autowired
     private login loginInterceptor;
@@ -21,16 +21,5 @@ public class Configurer extends WebMvcConfigurationSupport {
         registry.addInterceptor(loginInterceptor).addPathPatterns("/**")
                 .excludePathPatterns("/course/login");
         super.addInterceptors(registry);
-    }
-    @Bean
-    public HttpMessageConverter<String> responseBodyConverter() {
-        StringHttpMessageConverter converter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
-        return converter;
-    }
-
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        super.configureMessageConverters(converters);
-        converters.add(responseBodyConverter());
     }
 }
